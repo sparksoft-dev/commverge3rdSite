@@ -15,6 +15,10 @@ class Aaa {
 	// add $conn2 for AAA2 DB connection 8/8/2019
 	public static function createSubscriber($conn, $username, $password, $status, $serviceNumber, $plan, $customerType = 'Residential', 
 		$customerName = null, $orderNumber = null, $ipv6Address = null, $ipAddress = null, $netAddress = null, $remarks = null, $customerReplyItem = null, $conn2, $conn3) {
+		//Connection to Oracle DBS 
+		$conn = oci_connect();
+		$conn2 = oci_connect();
+		$conn3 = oci_connect();
 		$now = date('Y-m-d H:i:s', time());
 		$insertDate = substr($now, 2, strlen($now));
 		$rbEnabled = is_null($netAddress) ? 'Yes' : 'No';
