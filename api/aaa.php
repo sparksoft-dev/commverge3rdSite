@@ -170,7 +170,8 @@ class Aaa {
 					}
 					oci_bind_by_name($compiled, ':rbenabled', $rbEnabled);
 					oci_bind_by_name($compiled, ':now', $insertDate);
-					$result = oci_execute($compiled);
+					//Added OCI_NO_AUTO_COMMIT to not to commit immediately 8/22/2019
+					$result = oci_execute($compiled, OCI_NO_AUTO_COMMIT);
 					if ($result === false) {
 						oci_rollback($conn);
 						$error = oci_error($compiled);
@@ -247,7 +248,8 @@ class Aaa {
 							}
 							oci_bind_by_name($compiled, ':rbenabled', $rbEnabled);
 							oci_bind_by_name($compiled, ':now', $insertDate);
-							$result = oci_execute($compiled);
+							//Added OCI_NO_AUTO_COMMIT to not to commit immediately 8/22/2019
+							$result = oci_execute($compiled, OCI_NO_AUTO_COMMIT);
 							if ($result === false) {
 								oci_rollback($conn2);
 								oci_rollback($conn);

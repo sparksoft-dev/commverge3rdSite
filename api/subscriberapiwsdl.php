@@ -1904,7 +1904,8 @@ function wsCreateAccount($param) {
 
 	// added AAA2 database connection 8/8/2019
 	$aaaInsert = Aaa::createSubscriber($aaaConn, $username, $password, $status, $serviceNumber, $fixedPlan, $customerType,
-		$customerName, $orderNumber, $ipv6Address, $ipAddress, $netAddress, $remarks, $customerReplyItem, $aaaConn3, $aaaConn4);
+		$customerName, $orderNumber, $ipv6Address, $ipAddress, $netAddress, $remarks, $customerReplyItem, $
+		, $aaaConn4);
 	// aaa insert failed
 	if (!$aaaInsert['result']) {
 		// revert marked ip address (if any)
@@ -1946,8 +1947,96 @@ function wsCreateAccount($param) {
 		$returnObj['replyMessage'] = 'AAA database error occurred';
 		return $returnObj;
 	}
-	// aaa insert successful
+	// aaa insert successful for Database1
 	writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Inserted at AAA');
+
+	// aaa insert failed for Database2
+	if (!$aaaInsert['result2']) {
+		// revert marked ip address (if any)
+		if (!is_null($ipAddress) && $ipAddressMarked) {
+			$unmark = Aaa::markIPAddress($aaaConn, $ipAddress, false, $username, $status);
+			if (!$unmark['result']) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$unmark['error']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Failed to unmark '.$ipAddress);
+			} else {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unmarked '.$ipAddress);
+			}
+		}
+		// revert marked net address (if any)
+		if (!is_null($netAddress) && $netAddressMarked) {
+			$unmark = Aaa::markNetAddress($aaaConn, $netAddress, false, $username, $status);
+			if (!$unmark['result']) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$unmark['error']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Failed to unmark '.$netAddress);
+			} else {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unmarked '.$netAddress);
+			}
+		}
+		// revert marked ipv6 address (if any)
+		if (!is_null($ipv6Address) && $ipv6AddressMarked) {
+			$unmark = Aaa::markIPv6Address($aaaConn, $ipv6Address, false, $username, $status);
+			if (!$unmark['result']) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$unmark['error']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Failed to unmark '.$ipv6Address);
+			} else {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unmarked '.$ipv6Address);
+			}
+		}
+		writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", '----- '.$functionName.' response to '.$clientIp.': ['.F_ORACLE_DB_QUERY_ERROR.'] Query error: '.$aaaInsert['error']);
+		$lrq = logRequest($mysqlConn, $clientIp, $functionName, $param, F_ORACLE_DB_QUERY_ERROR);
+		if (!$lrq['result']) {
+			writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unable to log request');
+		}
+		$returnObj['responseCode'] = F_ORACLE_DB_QUERY_ERROR;
+		$returnObj['replyMessage'] = 'AAA2 database error occurred';
+		return $returnObj;
+	}
+	// aaa insert successful for Database2
+	writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Inserted at AAA2');
+
+	// aaa insert failed for Database3
+	if (!$aaaInsert['result']) {
+		// revert marked ip address (if any)
+		if (!is_null($ipAddress) && $ipAddressMarked) {
+			$unmark = Aaa::markIPAddress($aaaConn, $ipAddress, false, $username, $status);
+			if (!$unmark['result']) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$unmark['error']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Failed to unmark '.$ipAddress);
+			} else {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unmarked '.$ipAddress);
+			}
+		}
+		// revert marked net address (if any)
+		if (!is_null($netAddress) && $netAddressMarked) {
+			$unmark = Aaa::markNetAddress($aaaConn, $netAddress, false, $username, $status);
+			if (!$unmark['result']) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$unmark['error']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Failed to unmark '.$netAddress);
+			} else {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unmarked '.$netAddress);
+			}
+		}
+		// revert marked ipv6 address (if any)
+		if (!is_null($ipv6Address) && $ipv6AddressMarked) {
+			$unmark = Aaa::markIPv6Address($aaaConn, $ipv6Address, false, $username, $status);
+			if (!$unmark['result']) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$unmark['error']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Failed to unmark '.$ipv6Address);
+			} else {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unmarked '.$ipv6Address);
+			}
+		}
+		writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", '----- '.$functionName.' response to '.$clientIp.': ['.F_ORACLE_DB_QUERY_ERROR.'] Query error: '.$aaaInsert['error']);
+		$lrq = logRequest($mysqlConn, $clientIp, $functionName, $param, F_ORACLE_DB_QUERY_ERROR);
+		if (!$lrq['result']) {
+			writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unable to log request');
+		}
+		$returnObj['responseCode'] = F_ORACLE_DB_QUERY_ERROR;
+		$returnObj['replyMessage'] = 'AAA3 database error occurred';
+		return $returnObj;
+	}
+	// aaa insert successful for Database3
+	writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Inserted at AAA3');
 	/**************************************************
 	 * figure out X in #LX (for migrating)
 	 **************************************************/
