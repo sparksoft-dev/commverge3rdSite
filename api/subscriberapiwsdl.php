@@ -1904,8 +1904,7 @@ function wsCreateAccount($param) {
 
 	// added AAA2 database connection 8/8/2019
 	$aaaInsert = Aaa::createSubscriber($aaaConn, $username, $password, $status, $serviceNumber, $fixedPlan, $customerType,
-		$customerName, $orderNumber, $ipv6Address, $ipAddress, $netAddress, $remarks, $customerReplyItem, $
-		, $aaaConn4);
+		$customerName, $orderNumber, $ipv6Address, $ipAddress, $netAddress, $remarks, $customerReplyItem, $aaaCon3, $aaaConn4);
 	// aaa insert failed
 	if (!$aaaInsert['result']) {
 		// revert marked ip address (if any)
@@ -3776,6 +3775,10 @@ function wsModifyAccount($param) {
 	$aaaUpdate = Aaa::modifySubscriber($aaaConn, $username, $password, $oldStatus, $status, $serviceNumber, $fixedPlan, $customerType,
 		$customerName, $orderNumber, $ipv6Address, $ipAddress, $netAddress, $remarks, $customerReplyItem);
 	// aaa update failed
+
+	//Delete Subscriber 10/09/2019
+	
+	
 	if (!$aaaUpdate['result']) {
 		writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", '----- '.$functionName.' response to '.$clientIp.': ['.F_ORACLE_DB_QUERY_ERROR.'] Query error: '.$aaaUpdate['error']);
 		$lrq = logRequest($mysqlConn, $clientIp, $functionName, $param, F_ORACLE_DB_QUERY_ERROR);
@@ -3845,6 +3848,49 @@ function wsModifyAccount($param) {
 		$returnObj['responseCode'] = F_ORACLE_DB_QUERY_ERROR;
 		$returnObj['replyMessage'] = 'AAA database error occurred';
 		return $returnObj;
+		// Added delete session for 09/12/2019
+		$sessions = Aaa::getSubscriberSessions(
+			$config['useTblm'] ? $tblmConcConn : $aaaConn,
+			$config['useTblm'] ? $tblmConcConn2 : $aaaConn2,
+			$config['useTblm'],
+			$username);
+		if (!$sessions['result']) {
+			writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Query error: '.$sessions['error']);
+			writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Unable to get sessions');
+		} else {
+			// account has no session
+			if (empty($sessions['data'])) {
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Found 0 sessions');
+			// account has session(s)
+			} else {
+				$sessionCount = count($sessions['data']);
+				writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Found '.$sessionCount.' sessions');
+				// delete sessions: 2x api + tblmconcurrentusers + tblmcoresessions
+				for ($i = 0; $i < $sessionCount; $i++) {
+					$session = $sessions['data'][$i];
+					writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Deleting via api');
+					$result = Aaa::deleteSubscriberSessionUsingClient($deleteSessionClient, $session, $username);
+					writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Result: '.json_encode($result));
+					writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Deleting at TBLMCONCURRENTUSERS');
+					$result = Aaa::deleteSubscriberSessionAtTblmConcurrentusers($tblmConcConn, $username);
+					writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Result: '.json_encode($result));
+					writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Deleting at TBLMCORESESSIONS');
+					$result = Aaa::deleteSubscriberSessionAtTblmCoresessions($tblmCoreConn, $username);
+					writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Result: '.json_encode($result));
+					if ($config['useSecondary']) {
+						writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Deleting via api');
+						$result = Aaa::deleteSubscriberSessionUsingClient($deleteSessionClientSecondary, $session, $username);
+						writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Result: '.json_encode($result));
+						writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Deleting at TBLMCONCURRENTUSERS');
+						$result = Aaa::deleteSubscriberSessionAtTblmConcurrentusers($tblmConcConn2, $username);
+						writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Result: '.json_encode($result));
+						writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Deleting at TBLMCORESESSIONS');
+						$result = Aaa::deleteSubscriberSessionAtTblmCoresessions($tblmCoreConn2, $username);
+						writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Result: '.json_encode($result));
+					}
+				}
+			}
+		}
 	}
 	// aaa update successful
 	writeToFile( $apiAccessLogDir.$functionName.$logFile.".log", 'Updated at AAA');

@@ -179,7 +179,7 @@ class Aaa {
 					if ($result === false) {
 						oci_rollback($conn);
 						$error = oci_error($compiled);
-						return array('result2' => false, 'sql' => $sql, 'error' => json_encode($error));
+						return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
 					} else {
 						// return array('result2' => true);
 
@@ -258,19 +258,19 @@ class Aaa {
 								oci_rollback($conn2);
 								oci_rollback($conn);
 								$error = oci_error($compiled);
-								return array('result3' => false, 'sql' => $sql, 'error' => json_encode($error));
+								return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
 							} else {
-								return array('result3' => true);	
+								return array('result' => true);	
 							}
 
 						} catch (Exception $e) {
-							return array('result3' => false, 'sql' => $sql, 'error' => json_encode($e));
+							return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
 						}
 
 					}
 
 				} catch (Exception $e) {
-					return array('result2' => false, 'sql' => $sql, 'error' => json_encode($e));
+					return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
 				}
 
 			}		
@@ -342,11 +342,134 @@ class Aaa {
 			if ($result === false) {
 				$error = oci_error($compiled);
 				return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
-			}
-			return array('result' => true);
-		} catch (Exception $e) {
-			return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
+			} else{
+				try {
+					$sql = "update TBLCUSTOMER set ".
+						"CUSTOMERSTATUS = :customerstatus, PASSWORD = :password, CUSTOMERREPLYITEM = ".(is_null($customerReplyItem) ? "null" : ":customerreplyitem").", ".
+						"LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), RBCUSTOMERNAME = ".(is_null($customerName) ? "null" : ":rbcustomername").", ".
+						"RBSVCCODE = :rbsvccode, RBACCOUNTPLAN = :rbaccountplan, RADIUSPOLICY = :radiuspolicy, CUSTOMERTYPE = :customertype, ".
+						"RBSERVICENUMBER = :rbservicenumber, RBORDERNUMBER = ".(is_null($orderNumber) ? "null" : ":rbordernumber").", ".
+						"RBMULTISTATIC = ".(is_null($netAddress) ? "null" : ":netaddress").", RBIPADDRESS = ".(is_null($ipAddress) ? "null" : ":ipaddress").", ".
+						($statusChanged ? "RBCHANGESTATUSDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), RBCHANGESTATUSBY = :rbchangestatusby, " : "").
+						($statusChanged && $newStatus == 'A' ? "RBACTIVATEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), RBACTIVATEDBY = :rbactivatedby, " : "").
+						"RBADDITIONALSERVICE4 = ".(is_null($ipv6Address) ? "null" : ":ipv6Address").", ".
+						"RBENABLED = :rbenabled, RBREMARKS = ".(is_null($remarks) ? "null" : ":remarks")." ".
+						"where USER_IDENTITY = :username";
+					$compiled = oci_parse($conn, $sql);
+					oci_bind_by_name($compiled, ':customerstatus', $customerStatus);
+					oci_bind_by_name($compiled, ':password', $password);
+					if (!is_null($customerReplyItem)) {
+						oci_bind_by_name($compiled, ':customerreplyitem', $customerReplyItem);
+					}
+					oci_bind_by_name($compiled, ':now', $updateDate);
+					if (!is_null($customerName)) {
+						oci_bind_by_name($compiled, ':rbcustomername', $customerName);
+					}
+					oci_bind_by_name($compiled, ':rbsvccode', $plan);
+					oci_bind_by_name($compiled, ':rbaccountplan', $plan);
+					oci_bind_by_name($compiled, ':radiuspolicy', $plan);
+					oci_bind_by_name($compiled, ':customertype', $customerType);
+					oci_bind_by_name($compiled, ':rbservicenumber', $serviceNumber);
+					if (!is_null($orderNumber)) {
+						oci_bind_by_name($compiled, ':rbordernumber', $orderNumber);
+					}
+					if (!is_null($netAddress)) {
+						oci_bind_by_name($compiled, ':netaddress', $netAddress);
+					}
+					if (!is_null($ipAddress)) {
+						oci_bind_by_name($compiled, ':ipaddress', $ipAddress);
+					}
+					if ($statusChanged) {
+						oci_bind_by_name($compiled, ':rbchangestatusby', $rbChangeStatusBy);
+					}
+					if ($statusChanged && $newStatus == 'A') {
+						oci_bind_by_name($compiled, ':rbactivatedby', $rbChangeStatusBy);
+					}
+					oci_bind_by_name($compiled, ':rbenabled', $rbEnabled);
+					if (!is_null($ipv6Address)) {
+						oci_bind_by_name($compiled, ':ipv6Address', $ipv6Address);
+					}
+					if (!is_null($remarks)) {
+						oci_bind_by_name($compiled, ':remarks', $remarks);
+					}
+					oci_bind_by_name($compiled, ':username', $username);
+					$result = oci_execute($compiled);
+					if ($result === false) {
+						$error = oci_error($compiled,OCI_NO_AUTO_COMMIT);
+						oci_rollback($conn);
+						return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+					} else {
+						try {
+							$sql = "update TBLCUSTOMER set ".
+								"CUSTOMERSTATUS = :customerstatus, PASSWORD = :password, CUSTOMERREPLYITEM = ".(is_null($customerReplyItem) ? "null" : ":customerreplyitem").", ".
+								"LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), RBCUSTOMERNAME = ".(is_null($customerName) ? "null" : ":rbcustomername").", ".
+								"RBSVCCODE = :rbsvccode, RBACCOUNTPLAN = :rbaccountplan, RADIUSPOLICY = :radiuspolicy, CUSTOMERTYPE = :customertype, ".
+								"RBSERVICENUMBER = :rbservicenumber, RBORDERNUMBER = ".(is_null($orderNumber) ? "null" : ":rbordernumber").", ".
+								"RBMULTISTATIC = ".(is_null($netAddress) ? "null" : ":netaddress").", RBIPADDRESS = ".(is_null($ipAddress) ? "null" : ":ipaddress").", ".
+								($statusChanged ? "RBCHANGESTATUSDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), RBCHANGESTATUSBY = :rbchangestatusby, " : "").
+								($statusChanged && $newStatus == 'A' ? "RBACTIVATEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), RBACTIVATEDBY = :rbactivatedby, " : "").
+								"RBADDITIONALSERVICE4 = ".(is_null($ipv6Address) ? "null" : ":ipv6Address").", ".
+								"RBENABLED = :rbenabled, RBREMARKS = ".(is_null($remarks) ? "null" : ":remarks")." ".
+								"where USER_IDENTITY = :username";
+							$compiled = oci_parse($conn, $sql);
+							oci_bind_by_name($compiled, ':customerstatus', $customerStatus);
+							oci_bind_by_name($compiled, ':password', $password);
+							if (!is_null($customerReplyItem)) {
+								oci_bind_by_name($compiled, ':customerreplyitem', $customerReplyItem);
+							}
+							oci_bind_by_name($compiled, ':now', $updateDate);
+							if (!is_null($customerName)) {
+								oci_bind_by_name($compiled, ':rbcustomername', $customerName);
+							}
+							oci_bind_by_name($compiled, ':rbsvccode', $plan);
+							oci_bind_by_name($compiled, ':rbaccountplan', $plan);
+							oci_bind_by_name($compiled, ':radiuspolicy', $plan);
+							oci_bind_by_name($compiled, ':customertype', $customerType);
+							oci_bind_by_name($compiled, ':rbservicenumber', $serviceNumber);
+							if (!is_null($orderNumber)) {
+								oci_bind_by_name($compiled, ':rbordernumber', $orderNumber);
+							}
+							if (!is_null($netAddress)) {
+								oci_bind_by_name($compiled, ':netaddress', $netAddress);
+							}
+							if (!is_null($ipAddress)) {
+								oci_bind_by_name($compiled, ':ipaddress', $ipAddress);
+							}
+							if ($statusChanged) {
+								oci_bind_by_name($compiled, ':rbchangestatusby', $rbChangeStatusBy);
+							}
+							if ($statusChanged && $newStatus == 'A') {
+								oci_bind_by_name($compiled, ':rbactivatedby', $rbChangeStatusBy);
+							}
+							oci_bind_by_name($compiled, ':rbenabled', $rbEnabled);
+							if (!is_null($ipv6Address)) {
+								oci_bind_by_name($compiled, ':ipv6Address', $ipv6Address);
+							}
+							if (!is_null($remarks)) {
+								oci_bind_by_name($compiled, ':remarks', $remarks);
+							}
+							oci_bind_by_name($compiled, ':username', $username);
+							$result = oci_execute($compiled);
+							if ($result === false) {
+								$error = oci_error($compiled, OCI_NO_AUTO_COMMIT);
+								oci_rollback($conn2);
+								oci_rollback($conn);
+								return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+							} else {
+								return array('result' => true);	
+							}
+						} catch (Exception $e) {
+							return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
+						}
+					}
+				}	catch (Exception $e) {
+						return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
+					}
+				}
+			} catch (Exception $e) {
+				return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
 		}
+	
 	}
 	public static function updateSubscriberPlan($conn, $username, $plan) {
 		$now = date('Y-m-d H:i:s', time());
