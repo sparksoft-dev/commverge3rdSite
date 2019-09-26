@@ -279,8 +279,7 @@ class Subscribermain extends CI_Model
 								oci_rollback($conn3);
 								$error = oci_error($compiled);
 								return array('result3' => false, 'sql' => $sql, 'error' => json_encode($error));
-							}
-							else{
+							} else {
 								return array('result3' => true);
 							}
 						} catch (Exception $e) {
@@ -438,231 +437,230 @@ class Subscribermain extends CI_Model
 				return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
 			} else {
 				try {
-                    if ($s['PASSWORD'] == '' || $s['PASSWORD'] == null) {
-                        $this->load->model('util');
-                        $s['PASSWORD'] = $this->util->generateRandomString($this->PASSWORD_LENGTH);
-                    }
-                    $now = date('Y-m-d H:i:s', time());
-                    log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
-                    // $conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+					if ($s['PASSWORD'] == '' || $s['PASSWORD'] == null) {
+						$this->load->model('util');
+						$s['PASSWORD'] = $this->util->generateRandomString($this->PASSWORD_LENGTH);
+					}
+					$now = date('Y-m-d H:i:s', time());
+					log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
+					// $conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
 					$conn2 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
-                    // $conn3 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+					// $conn3 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
 
 					if (!$conn2) {
-                        return false;
-                    }
-                    $sql = "update TBLCUSTOMER set BANDWIDTH = " . (is_null($s['BANDWIDTH']) ? "null" : ":bandwidth") . ", CUSTOMERSTATUS = :customerstatus, PASSWORD = :password, " .
-                        "CUSTOMERREPLYITEM = " . (is_null($s['CUSTOMERREPLYITEM']) ? "null" : ":customerreplyitem") . ", LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), " .
-                        "RBCUSTOMERNAME = :rbcustomername, RBADDITIONALSERVICE2 = " . (is_null($s['RBADDITIONALSERVICE2']) ? "null" : ":rbadditionalservice2") . ", " .
-                        "RBADDITIONALSERVICE1 = " . (is_null($s['RBADDITIONALSERVICE1']) ? "null" : ":rbadditionalservice1") . ", " .
-                        "RBADDITIONALSERVICE3 = " . (is_null($s['RBADDITIONALSERVICE3']) ? "null" : ":rbadditionalservice3") . ", " .
-                        "RBADDITIONALSERVICE4 = " . (is_null($s['RBADDITIONALSERVICE4']) ? "null" : ":rbadditionalservice4") . ", " .
-                        "RBADDITIONALSERVICE5 = " . (is_null($s['RBADDITIONALSERVICE5']) ? "null" : ":rbadditionalservice5") . ", " .
-                        "RBCHANGESTATUSDATE = " . (is_null($s['RBCHANGESTATUSDATE']) ?
-                            "null" : (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false ?
-                                "TO_TIMESTAMP(:rbchangestatusdate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbchangestatusdate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBCHANGESTATUSDATE'], -2) . "')")) . ", " .
-                        "RBCHANGESTATUSBY = " . (is_null($s['RBCHANGESTATUSBY']) ? "null" : ":rbchangestatusby") . ", " .
-                        "RBACTIVATEDDATE = " . (is_null($s['RBACTIVATEDDATE']) ?
-                            "null" : (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false ?
-                                "TO_TIMESTAMP(:rbactivateddate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbactivateddate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBACTIVATEDDATE'], -2) . "')")) . ", " .
-                        "RBACTIVATEDBY = " . (is_null($s['RBACTIVATEDBY']) ? "null" : ":rbactivatedby") . ", RBACCOUNTSTATUS = :rbaccountstatus, RBSVCCODE2 = :rbsvccode2, RBSVCCODE = :radiuspolicy, " .
-                        "RBACCOUNTPLAN = :radiuspolicy, RADIUSPOLICY = :radiuspolicy, CUSTOMERTYPE = :customertype, RBSERVICENUMBER = :rbservicenumber, RBCHANGESTATUSFROM = :rbchangestatusfrom, " .
-                        "RBSECONDARYACCOUNT = :rbsecondaryaccount, RBUNLIMITEDACCESS = " . (is_null($s['RBUNLIMITEDACCESS']) ? "1" : ":rbunlimitedaccess") . ", " .
-                        "RBTIMESLOT = :rbtimeslot, RBORDERNUMBER = " . (is_null($s['RBORDERNUMBER']) ? "null" : ":rbordernumber") . ", " .
-                        "RBREMARKS = :rbremarks, RBREALM = :rbrealm, RBNUMBEROFSESSION = " . (is_null($s['RBNUMBEROFSESSION']) ? "1" : ":rbnumberofsession") . ", " .
-                        "RBMULTISTATIC = " . (is_null($s['RBMULTISTATIC']) ? "null" : ":rbmultistatic") . ", RBIPADDRESS = " . (is_null($s['RBIPADDRESS']) ? "null" : ":rbipaddress") . ", " .
-                        "RBENABLED = :rbenabled " .
-                        "where USER_IDENTITY = :cn";
-                    log_message('info', $sql);
-                    $compiled = oci_parse($conn2, $sql);
-                    if (!is_null($s['BANDWIDTH'])) {
-                        oci_bind_by_name($compiled, ':bandwidth', strval($s['BANDWIDTH']));
-                    }
-                    oci_bind_by_name($compiled, ':customerstatus', strval($s['CUSTOMERSTATUS']));
-                    oci_bind_by_name($compiled, ':password', strval($s['PASSWORD']));
-                    if (!is_null($s['CUSTOMERREPLYITEM'])) {
-                        oci_bind_by_name($compiled, ':customerreplyitem', strval($s['CUSTOMERREPLYITEM']));
-                    }
-                    oci_bind_by_name($compiled, ':now', strval($now));
-                    oci_bind_by_name($compiled, ':rbcustomername', strval($s['RBCUSTOMERNAME']));
-                    if (!is_null($s['RBADDITIONALSERVICE2'])) {
-                        oci_bind_by_name($compiled, ':rbadditionalservice2', strval($s['RBADDITIONALSERVICE2']));
-                    }
-                    if (!is_null($s['RBADDITIONALSERVICE1'])) {
-                        oci_bind_by_name($compiled, ':rbadditionalservice1', strval($s['RBADDITIONALSERVICE1']));
-                    }
-                    if (!is_null($s['RBADDITIONALSERVICE3'])) {
-                        oci_bind_by_name($compiled, ':rbadditionalservice3', strval($s['RBADDITIONALSERVICE3']));
-                    }
-                    if (!is_null($s['RBADDITIONALSERVICE4'])) {
-                        oci_bind_by_name($compiled, ':rbadditionalservice4', strval($s['RBADDITIONALSERVICE4']));
-                    }
-                    if (!is_null($s['RBADDITIONALSERVICE5'])) {
-                        oci_bind_by_name($compiled, ':rbadditionalservice5', strval($s['RBADDITIONALSERVICE5']));
-                    }
-                    if (!is_null($s['RBCHANGESTATUSDATE'])) {
-                        $rbchangestatusdate = (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false) ?
-                            substr($s['RBCHANGESTATUSDATE'], 2, strlen($s['RBCHANGESTATUSDATE'])) : $s['RBCHANGESTATUSDATE'];
-                        oci_bind_by_name($compiled, ':rbchangestatusdate', strval($rbchangestatusdate));
-                    }
-                    if (!is_null($s['RBCHANGESTATUSBY'])) {
-                        oci_bind_by_name($compiled, ':rbchangestatusby', strval($s['RBCHANGESTATUSBY']));
-                    }
-                    if (!is_null($s['RBACTIVATEDDATE'])) {
-                        $rbactivateddate = (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false) ?
-                            substr($s['RBACTIVATEDDATE'], 2, strlen($s['RBACTIVATEDDATE'])) : $s['RBACTIVATEDDATE'];
-                        oci_bind_by_name($compiled, ':rbactivateddate', strval($rbactivateddate));
-                    }
-                    if (!is_null($s['RBACTIVATEDBY'])) {
-                        oci_bind_by_name($compiled, ':rbactivatedby', strval($s['RBACTIVATEDBY']));
-                    }
-                    oci_bind_by_name($compiled, ':rbaccountstatus', strval($s['RBACCOUNTSTATUS']));
-                    oci_bind_by_name($compiled, ':rbsvccode2', strval($s['RBSVCCODE2']));
-                    oci_bind_by_name($compiled, ':radiuspolicy', strval($s['RBACCOUNTPLAN']));
-                    oci_bind_by_name($compiled, ':customertype', strval($s['CUSTOMERTYPE']));
-                    oci_bind_by_name($compiled, ':rbservicenumber', strval($s['RBSERVICENUMBER']));
-                    oci_bind_by_name($compiled, ':rbchangestatusfrom', strval($s['RBCHANGESTATUSFROM']));
-                    oci_bind_by_name($compiled, ':rbsecondaryaccount', strval($s['RBSECONDARYACCOUNT']));
-                    if (!is_null($s['RBUNLIMITEDACCESS'])) {
-                        oci_bind_by_name($compiled, ':rbunlimitedaccess', strval($s['RBUNLIMITEDACCESS']));
-                    }
-                    oci_bind_by_name($compiled, ':rbtimeslot', strval($s['RBTIMESLOT']));
-                    if (!is_null($s['RBORDERNUMBER'])) {
-                        oci_bind_by_name($compiled, ':rbordernumber', strval($s['RBORDERNUMBER']));
-                    }
-                    $s['RBREMARKS'] = trim($s['RBREMARKS']);
-                    oci_bind_by_name($compiled, ':rbremarks', strval($s['RBREMARKS']));
-                    oci_bind_by_name($compiled, ':rbrealm', strval($s['RBREALM']));
-                    if (!is_null($s['RBNUMBEROFSESSION'])) {
-                        oci_bind_by_name($compiled, ':rbnumberofsession', strval($s['RBNUMBEROFSESSION']));
-                    }
-                    if (!is_null($s['RBMULTISTATIC'])) {
-                        oci_bind_by_name($compiled, ':rbmultistatic', strval($s['RBMULTISTATIC']));
-                    }
-                    if (!is_null($s['RBIPADDRESS'])) {
-                        oci_bind_by_name($compiled, ':rbipaddress', strval($s['RBIPADDRESS']));
-                    }
-                    oci_bind_by_name($compiled, ':rbenabled', strval($s['RBENABLED']));
-                    oci_bind_by_name($compiled, ':cn', strval($cn));
-                    $result = oci_execute($compiled);
-                    // return $result ? true : false;
-                    //Julie 
-                    if ($result === false) {
-                        $error = oci_error($compiled);
-                        return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
-                    } else {
+						return false;
+					}
+					$sql = "update TBLCUSTOMER set BANDWIDTH = " . (is_null($s['BANDWIDTH']) ? "null" : ":bandwidth") . ", CUSTOMERSTATUS = :customerstatus, PASSWORD = :password, " .
+						"CUSTOMERREPLYITEM = " . (is_null($s['CUSTOMERREPLYITEM']) ? "null" : ":customerreplyitem") . ", LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), " .
+						"RBCUSTOMERNAME = :rbcustomername, RBADDITIONALSERVICE2 = " . (is_null($s['RBADDITIONALSERVICE2']) ? "null" : ":rbadditionalservice2") . ", " .
+						"RBADDITIONALSERVICE1 = " . (is_null($s['RBADDITIONALSERVICE1']) ? "null" : ":rbadditionalservice1") . ", " .
+						"RBADDITIONALSERVICE3 = " . (is_null($s['RBADDITIONALSERVICE3']) ? "null" : ":rbadditionalservice3") . ", " .
+						"RBADDITIONALSERVICE4 = " . (is_null($s['RBADDITIONALSERVICE4']) ? "null" : ":rbadditionalservice4") . ", " .
+						"RBADDITIONALSERVICE5 = " . (is_null($s['RBADDITIONALSERVICE5']) ? "null" : ":rbadditionalservice5") . ", " .
+						"RBCHANGESTATUSDATE = " . (is_null($s['RBCHANGESTATUSDATE']) ?
+							"null" : (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false ?
+								"TO_TIMESTAMP(:rbchangestatusdate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbchangestatusdate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBCHANGESTATUSDATE'], -2) . "')")) . ", " .
+						"RBCHANGESTATUSBY = " . (is_null($s['RBCHANGESTATUSBY']) ? "null" : ":rbchangestatusby") . ", " .
+						"RBACTIVATEDDATE = " . (is_null($s['RBACTIVATEDDATE']) ?
+							"null" : (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false ?
+								"TO_TIMESTAMP(:rbactivateddate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbactivateddate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBACTIVATEDDATE'], -2) . "')")) . ", " .
+						"RBACTIVATEDBY = " . (is_null($s['RBACTIVATEDBY']) ? "null" : ":rbactivatedby") . ", RBACCOUNTSTATUS = :rbaccountstatus, RBSVCCODE2 = :rbsvccode2, RBSVCCODE = :radiuspolicy, " .
+						"RBACCOUNTPLAN = :radiuspolicy, RADIUSPOLICY = :radiuspolicy, CUSTOMERTYPE = :customertype, RBSERVICENUMBER = :rbservicenumber, RBCHANGESTATUSFROM = :rbchangestatusfrom, " .
+						"RBSECONDARYACCOUNT = :rbsecondaryaccount, RBUNLIMITEDACCESS = " . (is_null($s['RBUNLIMITEDACCESS']) ? "1" : ":rbunlimitedaccess") . ", " .
+						"RBTIMESLOT = :rbtimeslot, RBORDERNUMBER = " . (is_null($s['RBORDERNUMBER']) ? "null" : ":rbordernumber") . ", " .
+						"RBREMARKS = :rbremarks, RBREALM = :rbrealm, RBNUMBEROFSESSION = " . (is_null($s['RBNUMBEROFSESSION']) ? "1" : ":rbnumberofsession") . ", " .
+						"RBMULTISTATIC = " . (is_null($s['RBMULTISTATIC']) ? "null" : ":rbmultistatic") . ", RBIPADDRESS = " . (is_null($s['RBIPADDRESS']) ? "null" : ":rbipaddress") . ", " .
+						"RBENABLED = :rbenabled " .
+						"where USER_IDENTITY = :cn";
+					log_message('info', $sql);
+					$compiled = oci_parse($conn2, $sql);
+					if (!is_null($s['BANDWIDTH'])) {
+						oci_bind_by_name($compiled, ':bandwidth', strval($s['BANDWIDTH']));
+					}
+					oci_bind_by_name($compiled, ':customerstatus', strval($s['CUSTOMERSTATUS']));
+					oci_bind_by_name($compiled, ':password', strval($s['PASSWORD']));
+					if (!is_null($s['CUSTOMERREPLYITEM'])) {
+						oci_bind_by_name($compiled, ':customerreplyitem', strval($s['CUSTOMERREPLYITEM']));
+					}
+					oci_bind_by_name($compiled, ':now', strval($now));
+					oci_bind_by_name($compiled, ':rbcustomername', strval($s['RBCUSTOMERNAME']));
+					if (!is_null($s['RBADDITIONALSERVICE2'])) {
+						oci_bind_by_name($compiled, ':rbadditionalservice2', strval($s['RBADDITIONALSERVICE2']));
+					}
+					if (!is_null($s['RBADDITIONALSERVICE1'])) {
+						oci_bind_by_name($compiled, ':rbadditionalservice1', strval($s['RBADDITIONALSERVICE1']));
+					}
+					if (!is_null($s['RBADDITIONALSERVICE3'])) {
+						oci_bind_by_name($compiled, ':rbadditionalservice3', strval($s['RBADDITIONALSERVICE3']));
+					}
+					if (!is_null($s['RBADDITIONALSERVICE4'])) {
+						oci_bind_by_name($compiled, ':rbadditionalservice4', strval($s['RBADDITIONALSERVICE4']));
+					}
+					if (!is_null($s['RBADDITIONALSERVICE5'])) {
+						oci_bind_by_name($compiled, ':rbadditionalservice5', strval($s['RBADDITIONALSERVICE5']));
+					}
+					if (!is_null($s['RBCHANGESTATUSDATE'])) {
+						$rbchangestatusdate = (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false) ?
+							substr($s['RBCHANGESTATUSDATE'], 2, strlen($s['RBCHANGESTATUSDATE'])) : $s['RBCHANGESTATUSDATE'];
+						oci_bind_by_name($compiled, ':rbchangestatusdate', strval($rbchangestatusdate));
+					}
+					if (!is_null($s['RBCHANGESTATUSBY'])) {
+						oci_bind_by_name($compiled, ':rbchangestatusby', strval($s['RBCHANGESTATUSBY']));
+					}
+					if (!is_null($s['RBACTIVATEDDATE'])) {
+						$rbactivateddate = (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false) ?
+							substr($s['RBACTIVATEDDATE'], 2, strlen($s['RBACTIVATEDDATE'])) : $s['RBACTIVATEDDATE'];
+						oci_bind_by_name($compiled, ':rbactivateddate', strval($rbactivateddate));
+					}
+					if (!is_null($s['RBACTIVATEDBY'])) {
+						oci_bind_by_name($compiled, ':rbactivatedby', strval($s['RBACTIVATEDBY']));
+					}
+					oci_bind_by_name($compiled, ':rbaccountstatus', strval($s['RBACCOUNTSTATUS']));
+					oci_bind_by_name($compiled, ':rbsvccode2', strval($s['RBSVCCODE2']));
+					oci_bind_by_name($compiled, ':radiuspolicy', strval($s['RBACCOUNTPLAN']));
+					oci_bind_by_name($compiled, ':customertype', strval($s['CUSTOMERTYPE']));
+					oci_bind_by_name($compiled, ':rbservicenumber', strval($s['RBSERVICENUMBER']));
+					oci_bind_by_name($compiled, ':rbchangestatusfrom', strval($s['RBCHANGESTATUSFROM']));
+					oci_bind_by_name($compiled, ':rbsecondaryaccount', strval($s['RBSECONDARYACCOUNT']));
+					if (!is_null($s['RBUNLIMITEDACCESS'])) {
+						oci_bind_by_name($compiled, ':rbunlimitedaccess', strval($s['RBUNLIMITEDACCESS']));
+					}
+					oci_bind_by_name($compiled, ':rbtimeslot', strval($s['RBTIMESLOT']));
+					if (!is_null($s['RBORDERNUMBER'])) {
+						oci_bind_by_name($compiled, ':rbordernumber', strval($s['RBORDERNUMBER']));
+					}
+					$s['RBREMARKS'] = trim($s['RBREMARKS']);
+					oci_bind_by_name($compiled, ':rbremarks', strval($s['RBREMARKS']));
+					oci_bind_by_name($compiled, ':rbrealm', strval($s['RBREALM']));
+					if (!is_null($s['RBNUMBEROFSESSION'])) {
+						oci_bind_by_name($compiled, ':rbnumberofsession', strval($s['RBNUMBEROFSESSION']));
+					}
+					if (!is_null($s['RBMULTISTATIC'])) {
+						oci_bind_by_name($compiled, ':rbmultistatic', strval($s['RBMULTISTATIC']));
+					}
+					if (!is_null($s['RBIPADDRESS'])) {
+						oci_bind_by_name($compiled, ':rbipaddress', strval($s['RBIPADDRESS']));
+					}
+					oci_bind_by_name($compiled, ':rbenabled', strval($s['RBENABLED']));
+					oci_bind_by_name($compiled, ':cn', strval($cn));
+					$result = oci_execute($compiled);
+					// return $result ? true : false;
+					//Julie 
+					if ($result === false) {
+						$error = oci_error($compiled);
+						return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+					} else {
 						try {
-                            if ($s['PASSWORD'] == '' || $s['PASSWORD'] == null) {
-                                $this->load->model('util');
-                                $s['PASSWORD'] = $this->util->generateRandomString($this->PASSWORD_LENGTH);
-                            }
-                            $now = date('Y-m-d H:i:s', time());
-                            log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
-                            $conn3 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
-                            if (!$conn3) {
-                                return false;
-                            }
-                            $sql = "update TBLCUSTOMER set BANDWIDTH = " . (is_null($s['BANDWIDTH']) ? "null" : ":bandwidth") . ", CUSTOMERSTATUS = :customerstatus, PASSWORD = :password, " .
-                                "CUSTOMERREPLYITEM = " . (is_null($s['CUSTOMERREPLYITEM']) ? "null" : ":customerreplyitem") . ", LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), " .
-                                "RBCUSTOMERNAME = :rbcustomername, RBADDITIONALSERVICE2 = " . (is_null($s['RBADDITIONALSERVICE2']) ? "null" : ":rbadditionalservice2") . ", " .
-                                "RBADDITIONALSERVICE1 = " . (is_null($s['RBADDITIONALSERVICE1']) ? "null" : ":rbadditionalservice1") . ", " .
-                                "RBADDITIONALSERVICE3 = " . (is_null($s['RBADDITIONALSERVICE3']) ? "null" : ":rbadditionalservice3") . ", " .
-                                "RBADDITIONALSERVICE4 = " . (is_null($s['RBADDITIONALSERVICE4']) ? "null" : ":rbadditionalservice4") . ", " .
-                                "RBADDITIONALSERVICE5 = " . (is_null($s['RBADDITIONALSERVICE5']) ? "null" : ":rbadditionalservice5") . ", " .
-                                "RBCHANGESTATUSDATE = " . (is_null($s['RBCHANGESTATUSDATE']) ?
-                                    "null" : (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false ?
-                                        "TO_TIMESTAMP(:rbchangestatusdate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbchangestatusdate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBCHANGESTATUSDATE'], -2) . "')")) . ", " .
-                                "RBCHANGESTATUSBY = " . (is_null($s['RBCHANGESTATUSBY']) ? "null" : ":rbchangestatusby") . ", " .
-                                "RBACTIVATEDDATE = " . (is_null($s['RBACTIVATEDDATE']) ?
-                                    "null" : (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false ?
-                                        "TO_TIMESTAMP(:rbactivateddate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbactivateddate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBACTIVATEDDATE'], -2) . "')")) . ", " .
-                                "RBACTIVATEDBY = " . (is_null($s['RBACTIVATEDBY']) ? "null" : ":rbactivatedby") . ", RBACCOUNTSTATUS = :rbaccountstatus, RBSVCCODE2 = :rbsvccode2, RBSVCCODE = :radiuspolicy, " .
-                                "RBACCOUNTPLAN = :radiuspolicy, RADIUSPOLICY = :radiuspolicy, CUSTOMERTYPE = :customertype, RBSERVICENUMBER = :rbservicenumber, RBCHANGESTATUSFROM = :rbchangestatusfrom, " .
-                                "RBSECONDARYACCOUNT = :rbsecondaryaccount, RBUNLIMITEDACCESS = " . (is_null($s['RBUNLIMITEDACCESS']) ? "1" : ":rbunlimitedaccess") . ", " .
-                                "RBTIMESLOT = :rbtimeslot, RBORDERNUMBER = " . (is_null($s['RBORDERNUMBER']) ? "null" : ":rbordernumber") . ", " .
-                                "RBREMARKS = :rbremarks, RBREALM = :rbrealm, RBNUMBEROFSESSION = " . (is_null($s['RBNUMBEROFSESSION']) ? "1" : ":rbnumberofsession") . ", " .
-                                "RBMULTISTATIC = " . (is_null($s['RBMULTISTATIC']) ? "null" : ":rbmultistatic") . ", RBIPADDRESS = " . (is_null($s['RBIPADDRESS']) ? "null" : ":rbipaddress") . ", " .
-                                "RBENABLED = :rbenabled " .
-                                "where USER_IDENTITY = :cn";
-                            log_message('info', $sql);
-                            $compiled = oci_parse($conn3, $sql);
-                            if (!is_null($s['BANDWIDTH'])) {
-                                oci_bind_by_name($compiled, ':bandwidth', strval($s['BANDWIDTH']));
-                            }
-                            oci_bind_by_name($compiled, ':customerstatus', strval($s['CUSTOMERSTATUS']));
-                            oci_bind_by_name($compiled, ':password', strval($s['PASSWORD']));
-                            if (!is_null($s['CUSTOMERREPLYITEM'])) {
-                                oci_bind_by_name($compiled, ':customerreplyitem', strval($s['CUSTOMERREPLYITEM']));
-                            }
-                            oci_bind_by_name($compiled, ':now', strval($now));
-                            oci_bind_by_name($compiled, ':rbcustomername', strval($s['RBCUSTOMERNAME']));
-                            if (!is_null($s['RBADDITIONALSERVICE2'])) {
-                                oci_bind_by_name($compiled, ':rbadditionalservice2', strval($s['RBADDITIONALSERVICE2']));
-                            }
-                            if (!is_null($s['RBADDITIONALSERVICE1'])) {
-                                oci_bind_by_name($compiled, ':rbadditionalservice1', strval($s['RBADDITIONALSERVICE1']));
-                            }
-                            if (!is_null($s['RBADDITIONALSERVICE3'])) {
-                                oci_bind_by_name($compiled, ':rbadditionalservice3', strval($s['RBADDITIONALSERVICE3']));
-                            }
-                            if (!is_null($s['RBADDITIONALSERVICE4'])) {
-                                oci_bind_by_name($compiled, ':rbadditionalservice4', strval($s['RBADDITIONALSERVICE4']));
-                            }
-                            if (!is_null($s['RBADDITIONALSERVICE5'])) {
-                                oci_bind_by_name($compiled, ':rbadditionalservice5', strval($s['RBADDITIONALSERVICE5']));
-                            }
-                            if (!is_null($s['RBCHANGESTATUSDATE'])) {
-                                $rbchangestatusdate = (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false) ?
-                                    substr($s['RBCHANGESTATUSDATE'], 2, strlen($s['RBCHANGESTATUSDATE'])) : $s['RBCHANGESTATUSDATE'];
-                                oci_bind_by_name($compiled, ':rbchangestatusdate', strval($rbchangestatusdate));
-                            }
-                            if (!is_null($s['RBCHANGESTATUSBY'])) {
-                                oci_bind_by_name($compiled, ':rbchangestatusby', strval($s['RBCHANGESTATUSBY']));
-                            }
-                            if (!is_null($s['RBACTIVATEDDATE'])) {
-                                $rbactivateddate = (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false) ?
-                                    substr($s['RBACTIVATEDDATE'], 2, strlen($s['RBACTIVATEDDATE'])) : $s['RBACTIVATEDDATE'];
-                                oci_bind_by_name($compiled, ':rbactivateddate', strval($rbactivateddate));
-                            }
-                            if (!is_null($s['RBACTIVATEDBY'])) {
-                                oci_bind_by_name($compiled, ':rbactivatedby', strval($s['RBACTIVATEDBY']));
-                            }
-                            oci_bind_by_name($compiled, ':rbaccountstatus', strval($s['RBACCOUNTSTATUS']));
-                            oci_bind_by_name($compiled, ':rbsvccode2', strval($s['RBSVCCODE2']));
-                            oci_bind_by_name($compiled, ':radiuspolicy', strval($s['RBACCOUNTPLAN']));
-                            oci_bind_by_name($compiled, ':customertype', strval($s['CUSTOMERTYPE']));
-                            oci_bind_by_name($compiled, ':rbservicenumber', strval($s['RBSERVICENUMBER']));
-                            oci_bind_by_name($compiled, ':rbchangestatusfrom', strval($s['RBCHANGESTATUSFROM']));
-                            oci_bind_by_name($compiled, ':rbsecondaryaccount', strval($s['RBSECONDARYACCOUNT']));
-                            if (!is_null($s['RBUNLIMITEDACCESS'])) {
-                                oci_bind_by_name($compiled, ':rbunlimitedaccess', strval($s['RBUNLIMITEDACCESS']));
-                            }
-                            oci_bind_by_name($compiled, ':rbtimeslot', strval($s['RBTIMESLOT']));
-                            if (!is_null($s['RBORDERNUMBER'])) {
-                                oci_bind_by_name($compiled, ':rbordernumber', strval($s['RBORDERNUMBER']));
-                            }
-                            $s['RBREMARKS'] = trim($s['RBREMARKS']);
-                            oci_bind_by_name($compiled, ':rbremarks', strval($s['RBREMARKS']));
-                            oci_bind_by_name($compiled, ':rbrealm', strval($s['RBREALM']));
-                            if (!is_null($s['RBNUMBEROFSESSION'])) {
-                                oci_bind_by_name($compiled, ':rbnumberofsession', strval($s['RBNUMBEROFSESSION']));
-                            }
-                            if (!is_null($s['RBMULTISTATIC'])) {
-                                oci_bind_by_name($compiled, ':rbmultistatic', strval($s['RBMULTISTATIC']));
-                            }
-                            if (!is_null($s['RBIPADDRESS'])) {
-                                oci_bind_by_name($compiled, ':rbipaddress', strval($s['RBIPADDRESS']));
-                            }
-                            oci_bind_by_name($compiled, ':rbenabled', strval($s['RBENABLED']));
-                            oci_bind_by_name($compiled, ':cn', strval($cn));
-                            $result = oci_execute($compiled);
-                            // return $result ? true : false;
-                            //Julie 
-                            if ($result === false) {
-                                $error = oci_error($compiled);
-                                return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
-                            }
-							else{
+							if ($s['PASSWORD'] == '' || $s['PASSWORD'] == null) {
+								$this->load->model('util');
+								$s['PASSWORD'] = $this->util->generateRandomString($this->PASSWORD_LENGTH);
+							}
+							$now = date('Y-m-d H:i:s', time());
+							log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
+							$conn3 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+							if (!$conn3) {
+								return false;
+							}
+							$sql = "update TBLCUSTOMER set BANDWIDTH = " . (is_null($s['BANDWIDTH']) ? "null" : ":bandwidth") . ", CUSTOMERSTATUS = :customerstatus, PASSWORD = :password, " .
+								"CUSTOMERREPLYITEM = " . (is_null($s['CUSTOMERREPLYITEM']) ? "null" : ":customerreplyitem") . ", LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS'), " .
+								"RBCUSTOMERNAME = :rbcustomername, RBADDITIONALSERVICE2 = " . (is_null($s['RBADDITIONALSERVICE2']) ? "null" : ":rbadditionalservice2") . ", " .
+								"RBADDITIONALSERVICE1 = " . (is_null($s['RBADDITIONALSERVICE1']) ? "null" : ":rbadditionalservice1") . ", " .
+								"RBADDITIONALSERVICE3 = " . (is_null($s['RBADDITIONALSERVICE3']) ? "null" : ":rbadditionalservice3") . ", " .
+								"RBADDITIONALSERVICE4 = " . (is_null($s['RBADDITIONALSERVICE4']) ? "null" : ":rbadditionalservice4") . ", " .
+								"RBADDITIONALSERVICE5 = " . (is_null($s['RBADDITIONALSERVICE5']) ? "null" : ":rbadditionalservice5") . ", " .
+								"RBCHANGESTATUSDATE = " . (is_null($s['RBCHANGESTATUSDATE']) ?
+									"null" : (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false ?
+										"TO_TIMESTAMP(:rbchangestatusdate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbchangestatusdate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBCHANGESTATUSDATE'], -2) . "')")) . ", " .
+								"RBCHANGESTATUSBY = " . (is_null($s['RBCHANGESTATUSBY']) ? "null" : ":rbchangestatusby") . ", " .
+								"RBACTIVATEDDATE = " . (is_null($s['RBACTIVATEDDATE']) ?
+									"null" : (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false ?
+										"TO_TIMESTAMP(:rbactivateddate, 'RR-MM-DD HH24.MI.SS')" : "TO_TIMESTAMP(:rbactivateddate, 'DD-MON-RR HH.MI.SS.FF " . substr($s['RBACTIVATEDDATE'], -2) . "')")) . ", " .
+								"RBACTIVATEDBY = " . (is_null($s['RBACTIVATEDBY']) ? "null" : ":rbactivatedby") . ", RBACCOUNTSTATUS = :rbaccountstatus, RBSVCCODE2 = :rbsvccode2, RBSVCCODE = :radiuspolicy, " .
+								"RBACCOUNTPLAN = :radiuspolicy, RADIUSPOLICY = :radiuspolicy, CUSTOMERTYPE = :customertype, RBSERVICENUMBER = :rbservicenumber, RBCHANGESTATUSFROM = :rbchangestatusfrom, " .
+								"RBSECONDARYACCOUNT = :rbsecondaryaccount, RBUNLIMITEDACCESS = " . (is_null($s['RBUNLIMITEDACCESS']) ? "1" : ":rbunlimitedaccess") . ", " .
+								"RBTIMESLOT = :rbtimeslot, RBORDERNUMBER = " . (is_null($s['RBORDERNUMBER']) ? "null" : ":rbordernumber") . ", " .
+								"RBREMARKS = :rbremarks, RBREALM = :rbrealm, RBNUMBEROFSESSION = " . (is_null($s['RBNUMBEROFSESSION']) ? "1" : ":rbnumberofsession") . ", " .
+								"RBMULTISTATIC = " . (is_null($s['RBMULTISTATIC']) ? "null" : ":rbmultistatic") . ", RBIPADDRESS = " . (is_null($s['RBIPADDRESS']) ? "null" : ":rbipaddress") . ", " .
+								"RBENABLED = :rbenabled " .
+								"where USER_IDENTITY = :cn";
+							log_message('info', $sql);
+							$compiled = oci_parse($conn3, $sql);
+							if (!is_null($s['BANDWIDTH'])) {
+								oci_bind_by_name($compiled, ':bandwidth', strval($s['BANDWIDTH']));
+							}
+							oci_bind_by_name($compiled, ':customerstatus', strval($s['CUSTOMERSTATUS']));
+							oci_bind_by_name($compiled, ':password', strval($s['PASSWORD']));
+							if (!is_null($s['CUSTOMERREPLYITEM'])) {
+								oci_bind_by_name($compiled, ':customerreplyitem', strval($s['CUSTOMERREPLYITEM']));
+							}
+							oci_bind_by_name($compiled, ':now', strval($now));
+							oci_bind_by_name($compiled, ':rbcustomername', strval($s['RBCUSTOMERNAME']));
+							if (!is_null($s['RBADDITIONALSERVICE2'])) {
+								oci_bind_by_name($compiled, ':rbadditionalservice2', strval($s['RBADDITIONALSERVICE2']));
+							}
+							if (!is_null($s['RBADDITIONALSERVICE1'])) {
+								oci_bind_by_name($compiled, ':rbadditionalservice1', strval($s['RBADDITIONALSERVICE1']));
+							}
+							if (!is_null($s['RBADDITIONALSERVICE3'])) {
+								oci_bind_by_name($compiled, ':rbadditionalservice3', strval($s['RBADDITIONALSERVICE3']));
+							}
+							if (!is_null($s['RBADDITIONALSERVICE4'])) {
+								oci_bind_by_name($compiled, ':rbadditionalservice4', strval($s['RBADDITIONALSERVICE4']));
+							}
+							if (!is_null($s['RBADDITIONALSERVICE5'])) {
+								oci_bind_by_name($compiled, ':rbadditionalservice5', strval($s['RBADDITIONALSERVICE5']));
+							}
+							if (!is_null($s['RBCHANGESTATUSDATE'])) {
+								$rbchangestatusdate = (strpos($s['RBCHANGESTATUSDATE'], 'AM') === false && strpos($s['RBCHANGESTATUSDATE'], 'PM') === false) ?
+									substr($s['RBCHANGESTATUSDATE'], 2, strlen($s['RBCHANGESTATUSDATE'])) : $s['RBCHANGESTATUSDATE'];
+								oci_bind_by_name($compiled, ':rbchangestatusdate', strval($rbchangestatusdate));
+							}
+							if (!is_null($s['RBCHANGESTATUSBY'])) {
+								oci_bind_by_name($compiled, ':rbchangestatusby', strval($s['RBCHANGESTATUSBY']));
+							}
+							if (!is_null($s['RBACTIVATEDDATE'])) {
+								$rbactivateddate = (strpos($s['RBACTIVATEDDATE'], 'AM') === false && strpos($s['RBACTIVATEDDATE'], 'PM') === false) ?
+									substr($s['RBACTIVATEDDATE'], 2, strlen($s['RBACTIVATEDDATE'])) : $s['RBACTIVATEDDATE'];
+								oci_bind_by_name($compiled, ':rbactivateddate', strval($rbactivateddate));
+							}
+							if (!is_null($s['RBACTIVATEDBY'])) {
+								oci_bind_by_name($compiled, ':rbactivatedby', strval($s['RBACTIVATEDBY']));
+							}
+							oci_bind_by_name($compiled, ':rbaccountstatus', strval($s['RBACCOUNTSTATUS']));
+							oci_bind_by_name($compiled, ':rbsvccode2', strval($s['RBSVCCODE2']));
+							oci_bind_by_name($compiled, ':radiuspolicy', strval($s['RBACCOUNTPLAN']));
+							oci_bind_by_name($compiled, ':customertype', strval($s['CUSTOMERTYPE']));
+							oci_bind_by_name($compiled, ':rbservicenumber', strval($s['RBSERVICENUMBER']));
+							oci_bind_by_name($compiled, ':rbchangestatusfrom', strval($s['RBCHANGESTATUSFROM']));
+							oci_bind_by_name($compiled, ':rbsecondaryaccount', strval($s['RBSECONDARYACCOUNT']));
+							if (!is_null($s['RBUNLIMITEDACCESS'])) {
+								oci_bind_by_name($compiled, ':rbunlimitedaccess', strval($s['RBUNLIMITEDACCESS']));
+							}
+							oci_bind_by_name($compiled, ':rbtimeslot', strval($s['RBTIMESLOT']));
+							if (!is_null($s['RBORDERNUMBER'])) {
+								oci_bind_by_name($compiled, ':rbordernumber', strval($s['RBORDERNUMBER']));
+							}
+							$s['RBREMARKS'] = trim($s['RBREMARKS']);
+							oci_bind_by_name($compiled, ':rbremarks', strval($s['RBREMARKS']));
+							oci_bind_by_name($compiled, ':rbrealm', strval($s['RBREALM']));
+							if (!is_null($s['RBNUMBEROFSESSION'])) {
+								oci_bind_by_name($compiled, ':rbnumberofsession', strval($s['RBNUMBEROFSESSION']));
+							}
+							if (!is_null($s['RBMULTISTATIC'])) {
+								oci_bind_by_name($compiled, ':rbmultistatic', strval($s['RBMULTISTATIC']));
+							}
+							if (!is_null($s['RBIPADDRESS'])) {
+								oci_bind_by_name($compiled, ':rbipaddress', strval($s['RBIPADDRESS']));
+							}
+							oci_bind_by_name($compiled, ':rbenabled', strval($s['RBENABLED']));
+							oci_bind_by_name($compiled, ':cn', strval($cn));
+							$result = oci_execute($compiled);
+							// return $result ? true : false;
+							//Julie 
+							if ($result === false) {
+								$error = oci_error($compiled);
+								return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+							} else {
 								return array('result' => true);
 							}
 						} catch (Exception $e) {
@@ -729,19 +727,73 @@ class Subscribermain extends CI_Model
 		$cn = $uusername . '@' . $realm;
 		log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
 		$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+		$conn2 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+		$conn3 = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
 		if (!$conn) {
 			return false;
 		}
-		$sql = "update TBLCUSTOMER set PASSWORD = :password, RBREALM = :rbrealm, LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS') where USERNAME = :cn";
-		log_message('info', $sql);
-		$compiled = oci_parse($conn, $sql);
-		oci_bind_by_name($compiled, ':password', strval($upassword));
-		oci_bind_by_name($compiled, ':rbrealm', strval($realm));
-		oci_bind_by_name($compiled, ':now', strval($now));
-		oci_bind_by_name($compiled, ':cn', strval($cn));
-		$result = oci_execute($compiled);
-		return $result ? true : false;
+
+		/* 09/26/19 Added tri-nested catch */
+		try {
+			$sql = "update TBLCUSTOMER set PASSWORD = :password, RBREALM = :rbrealm, LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS') where USERNAME = :cn";
+			log_message('info', $sql);
+			$compiled = oci_parse($conn, $sql);
+			oci_bind_by_name($compiled, ':password', strval($upassword));
+			oci_bind_by_name($compiled, ':rbrealm', strval($realm));
+			oci_bind_by_name($compiled, ':now', strval($now));
+			oci_bind_by_name($compiled, ':cn', strval($cn));
+			$result = oci_execute($compiled, OCI_NO_AUTO_COMMIT);
+			if ($result === false) {
+				$error = oci_error($compiled);
+				return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+			} else {
+				try {
+					$sql = "update TBLCUSTOMER set PASSWORD = :password, RBREALM = :rbrealm, LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS') where USERNAME = :cn";
+					log_message('info', $sql);
+					$compiled = oci_parse($conn2, $sql);
+					oci_bind_by_name($compiled, ':password', strval($upassword));
+					oci_bind_by_name($compiled, ':rbrealm', strval($realm));
+					oci_bind_by_name($compiled, ':now', strval($now));
+					oci_bind_by_name($compiled, ':cn', strval($cn));
+					$result = oci_execute($compiled, OCI_NO_AUTO_COMMIT);
+					/* ++ nested try catch  if (result) roll back*/
+					if ($result === false) {
+						oci_rollback($conn2);
+						$error = oci_error($compiled);
+						return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+					} else {
+						try {
+							$sql = "update TBLCUSTOMER set PASSWORD = :password, RBREALM = :rbrealm, LASTMODIFIEDDATE = TO_TIMESTAMP(:now, 'RR-MM-DD HH24:MI:SS') where USERNAME = :cn";
+							log_message('info', $sql);
+							$compiled = oci_parse($conn3, $sql);
+							oci_bind_by_name($compiled, ':password', strval($upassword));
+							oci_bind_by_name($compiled, ':rbrealm', strval($realm));
+							oci_bind_by_name($compiled, ':now', strval($now));
+							oci_bind_by_name($compiled, ':cn', strval($cn));
+							$result = oci_execute($compiled);
+							/* ++ nested try catch  if (result) roll back*/
+							if ($result === false) {
+								oci_rollback($conn2);
+								oci_rollback($conn3);
+								$error = oci_error($compiled);
+								return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+							} else {
+								return array('result' => true);
+							}
+						} catch (Exception $e) {
+							return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
+						}
+					}
+				} catch (Exception $e) {
+					return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
+				}
+			}
+			// Add later return $result ? true : false;
+		} catch (Exception $e) {
+			return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
+		}
 	}
+
 	public function unassignIPv6IPAndNetAddress($cn, $ipv6 = false, $ip = false, $net = false, $replyItem = null, $username = null, $password = null, $host = null, $port = null, $schema = null)
 	{
 		$now = date('Y-m-d H:i:s', time());
