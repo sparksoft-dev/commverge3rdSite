@@ -813,56 +813,53 @@ class Subscribermain extends CI_Model
 		$result = oci_execute($compiled);
 		return $result ? true : false;
 	}
-		public function delete($cn, $username = null, $password = null, $host = null, $port = null, $schema = null)
+	public function delete($cn, $username = null, $password = null, $host = null, $port = null, $schema = null)
 	{
 		try {
 			log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
-		$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
-		if (!$conn) {
-			return false;
-		}
-		$sql = "delete from TBLCUSTOMER where USER_IDENTITY = :cn";
-		$compiled = oci_parse($conn, $sql);
-		oci_bind_by_name($compiled, ':cn', strval($cn));
-		$result = oci_execute($compiled);
-        // return $result ? true : false;
-        if ($result === false) {
-            $error = oci_error($compiled);
-            return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
-        }
-			else {
+			$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+			if (!$conn) {
+				return false;
+			}
+			$sql = "delete from TBLCUSTOMER where USER_IDENTITY = :cn";
+			$compiled = oci_parse($conn, $sql);
+			oci_bind_by_name($compiled, ':cn', strval($cn));
+			$result = oci_execute($compiled);
+			// return $result ? true : false;
+			if ($result === false) {
+				$error = oci_error($compiled);
+				return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+			} else {
 				try {
 					log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
-		$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
-		if (!$conn) {
-			return false;
-		}
-		$sql = "delete from TBLCUSTOMER where USER_IDENTITY = :cn";
-		$compiled = oci_parse($conn, $sql);
-		oci_bind_by_name($compiled, ':cn', strval($cn));
-		$result = oci_execute($compiled);
-        // return $result ? true : false;
-        if ($result === false) {
-            $error = oci_error($compiled);
-            return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
-        }
-			else {
+					$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+					if (!$conn) {
+						return false;
+					}
+					$sql = "delete from TBLCUSTOMER where USER_IDENTITY = :cn";
+					$compiled = oci_parse($conn, $sql);
+					oci_bind_by_name($compiled, ':cn', strval($cn));
+					$result = oci_execute($compiled);
+					// return $result ? true : false;
+					if ($result === false) {
+						$error = oci_error($compiled);
+						return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+					} else {
 						try {
 							log_message('info', 'connection: ' . $host . ':' . $port . '/' . $schema . ', ' . $username . '|' . $password);
-		$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
-		if (!$conn) {
-			return false;
-		}
-		$sql = "delete from TBLCUSTOMER where USER_IDENTITY = :cn";
-		$compiled = oci_parse($conn, $sql);
-		oci_bind_by_name($compiled, ':cn', strval($cn));
-		$result = oci_execute($compiled);
-        // return $result ? true : false;
-        if ($result === false) {
-            $error = oci_error($compiled);
-            return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
-        }
-							else{
+							$conn = oci_connect($username, $password, $host . ':' . $port . '/' . $schema);
+							if (!$conn) {
+								return false;
+							}
+							$sql = "delete from TBLCUSTOMER where USER_IDENTITY = :cn";
+							$compiled = oci_parse($conn, $sql);
+							oci_bind_by_name($compiled, ':cn', strval($cn));
+							$result = oci_execute($compiled);
+							// return $result ? true : false;
+							if ($result === false) {
+								$error = oci_error($compiled);
+								return array('result' => false, 'sql' => $sql, 'error' => json_encode($error));
+							} else {
 								return array('result' => true);
 							}
 						} catch (Exception $e) {
@@ -879,7 +876,7 @@ class Subscribermain extends CI_Model
 			log_message('info', 'error:' . json_encode($e));
 			return array('result' => false, 'sql' => $sql, 'error' => json_encode($e));
 		}
-    }
+	}
 	public function subscriberExists($cn, $username = null, $password = null, $host = null, $port = null, $schema = null)
 	{
 		/*
